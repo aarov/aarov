@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Press the right button</title>
+  <meta charset="utf-8"/>
+  <style>
+
+  button {
+    width: 50px;
+    height: 50px;
+    margin-top: 3px;
+    background-color: #e7e7e7;
+  }
+  #save, #load, #submit_score {
+    width: auto;
+    height: auto;
+  }
+
+  button#mainButton {
+    width: 80px;
+    height: 80px;
+  }
+
+  button#close {
+    float: right;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+  }
+
+  div#instructions {
+    border: 2px;
+    border-style: solid;
+    border-color: black;
+    display: block;
+  }
+
+  div#wrapper {
+    text-align: center;
+    width: 175px;
+    height: 800px;
+    margin: 0 auto;
+  }
+
+  div#buttonGrid {
+    width: 175px;
+    height: 175px;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  </style>
+  <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script>
+
+  $(document).ready( function() {
+    var success = false; //Used to check if player pressed right button in time
+    var failures = 0; //if you fail 3 times, game over
+    var turnUsed = false; //used to check if pressed a button already
+    var gameRun; //used to keep the game running, and for stopping it
+    //button numbers initialised here for use in functions
+    var buttonNumber = 0;
+    var buttonNumber2 = 1;
+    var buttonNumber3 = 2;
+    //button colour initialised here
+    var btnColour1 = 0;
+    var btnColour2 = 1;
+    var btnColour3 = 2;
+    var points = 0;  //player score
+    //a list that contains all 9 buttons in the grid
+    var buttons = ["btn0", "btn1", "btn2", "btn3", "btn4", "btn5", "btn6", "btn7", "btn8"];
+    var timer = 1500; //interval timer of button colours changing
+    var mainBtn = document.getElementById("mainButton"); //the big button
+
+    function gameStatusReset() {
+      /*
+      Resets all values that are needed to reset to their original value
+      for starting a new game
+      */
+      points = 0;
+      failures = 0;
+      timer = 1500;
+      success = false;
+      turnUsed = false;
+      clearTimeout(gameRun);
+      gameUpdate();
+      $("#result").text("");
+    }
+
+    function gameEnd() {
+      /*
+      Function called to show results when the game has ended
+      */
+      var endResult = "Game over! You got " + points + " points!";
+      mainBtn.style.backgroundColor = "#e7e7e7";
+      $("#result").text(endResult);
+    }
+
+    function gameUpdate() {
+      /*
+      Updates score and lives
+      */
+      var livesLeft = 4 - failures;
+      if ( livesLeft > 3 ) {
+        livesLeft = 3;
+      }
+      $("#score").text(points);
+      $("#lives").text(livesLeft);
+    }
+
+    function gameStatus() {
+      /*
+      Checks the status of the game, checking if the game has ended,
+      adds points and failures
+      If game ends, returns false, and true if it continues
+      */
+
+      //success if player clicked right button and adds points
+      //on a failure, adds a failure and after three failures ends game
+      if ( success == true ) {
+        points = points + 1;
+      } else {
+        failures = failures + 1;
+      }
+      //after the requried failures ("lives run out"), stops the game
+      if ( failures >= 4 ) {
+        clearTimeout(gameRun);
+        return false;
+      }
+      return true;
+    }
+
+    function colourChange() {
+      /*
+      Creates random numbers for which buttons light up and in which colours,
+      while making sure that 3 different buttons light up in 3 different colours
+      */
+
+      //possible colours for buttons
+      var buttonColours = ["red", "blue", "green", "yellow"];
+
+
+      //sets the previous buttons back to original colour before creating next ones
+      document.getElementById(buttons[buttonNumber]).style.backgroundColor = "#e7e7e7";
+      document.getElementById(buttons[buttonNumber2]).style.backgroundColor = "#e7e7e7";
+      document.getElementById(buttons[buttonNumber3]).style.backgroundColor = "#e7e7e7";
+
+      //Gives randomly 3 different buttons that change colour
+      buttonNumber = Math.round(Math.random()*8);
+      buttonNumber2 = Math.round(Math.random()*8);
+      while ( buttonNumber2 == buttonNumber ) {
+        buttonNumber2 = Math.round(Math.random()*8);
+      }
+      buttonNumber3 = Math.round(Math.random()*8);
+      while ( buttonNumber3 == buttonNumber || buttonNumber3 == buttonNumber2 ) {
+        buttonNumber3 = Math.round(Math.random()*8);
+      }
+
+      //Gives three different colours for the buttons
+      btnColour1 = Math.round(Math.random()*3);
+      btnColour2 = Math.round(Math.random()*3);
+      while ( btnColour1 == btnColour2 ) {
+        btnColour2 = Math.round(Math.random()*3);
+      }
+      btnColour3 = Math.round(Math.random()*3);
+      while ( btnColour3 == btnColour1 || btnColour3 == btnColour2 ) {
+        btnColour3 = Math.round(Math.random()*3);
+      }
+
+      var gameContinues = gameStatus();
+      if ( gameContinues === true ) {
+        //Big button changes to one of the colours
+        mainBtn.style.backgroundColor = buttonColours[btnColour1];
+
+        //Changes the colour of the three random buttons
+        document.getElementById(buttons[buttonNumber]).style.backgroundColor = buttonColours[btnColour1];
+        document.getElementById(buttons[buttonNumber2]).style.backgroundColor = buttonColours[btnColour2];
+        document.getElementById(buttons[buttonNumber3]).style.backgroundColor = buttonColours[btnColour3];
+        timer = timer*0.99; //speeds up the game, making each round faster
+        gameRun = setTimeout(colourChange, timer); //calls function again with the timer delay
+        success = false; //resets success to false
+        turnUsed = false;
+      } else {
+        //add finish here
+        gameEnd();
+      }
+      gameUpdate();
+    }
+
+    //Following events trigger for the button presses for the
+    // 9 buttons on the grid
+    $("#btn0").click( function() {
+      if ( document.getElementById("btn0").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn1").click( function() {
+      if ( document.getElementById("btn1").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn2").click( function() {
+      if ( document.getElementById("btn2").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn3").click( function() {
+      if ( document.getElementById("btn3").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn4").click( function() {
+      if ( document.getElementById("btn4").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn5").click( function() {
+      if ( document.getElementById("btn5").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn6").click( function() {
+      if ( document.getElementById("btn6").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn7").click( function() {
+      if ( document.getElementById("btn7").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    $("#btn8").click( function() {
+      if ( document.getElementById("btn8").style.backgroundColor === mainBtn.style.backgroundColor && turnUsed === false ) {
+        success = true;
+      }
+      turnUsed = true;
+    });
+
+    //Starts a fresh game at start and when starting after a failure
+    //If only stopped but still lives, continues the game
+    $("#start").click( function() {
+      if ( failures === 4 ) {
+        gameStatusReset(); //clears everything to normal when starting a new game
+      }
+      gamerun = setTimeout( colourChange, timer);
+    });
+
+    //Closes the instructions
+    $("#close").click( function() {
+      document.getElementById("instructions").style.display = "none";
+    });
+
+    //Pauses the game
+    $("#stop").click( function() {
+      gameUpdate();
+      clearTimeout(gameRun);
+    });
+
+    //Sends the game's state to the service
+    $("#save").click(function () {
+      var msg = {
+        "messageType": "SAVE",
+        "gameState": {
+          "score": parseFloat($("#score").text()),
+          "success": success, //has the right button been pressed
+          "turnUsed": turnUsed, //has the current turn been used
+          "buttonNumber": buttonNumber, //buttons that are coloured
+          "buttonNumber2": buttonNumber2,
+          "buttonNumber3": buttonNumber3,
+          "btnColour1": btnColour1, //button colours
+          "btnColour2": btnColour2,
+          "btnColour3": btnColour3,
+          "failures": failures, //tracks lives
+          "timer": timer
+        }
+      };
+      window.parent.postMessage(msg, "*");
+    });
+
+    //Sends a load request for the service
+    $("#load").click( function() {
+      var msg = {
+        "messageType": "LOAD_REQUEST"
+      };
+      window.parent.postMessage(msg, "*");
+    });
+
+    //Submits score to the service
+    $("#submit_score").click( function () {
+      var msg = {
+        "messageType": "SCORE",
+        "score": parseFloat($("#score").text())
+      };
+      window.parent.postMessage(msg, "*");
+    });
+
+    //Loads game state if gets a LOAD message,
+    //Displays errors as an alert if ERROR is received
+    window.addEventListener("message", function(evt) {
+      if(evt.data.messageType === "LOAD") {
+        points = evt.data.gameState.score;
+        success = evt.data.gameState.success;
+        turnUsed = evt.data.gameState.turnUsed;
+        buttonNumber = evt.data.gameState.buttonNumber;
+        buttonNumber2 = evt.data.gameState.buttonNumber2;
+        buttonNumber3 = evt.data.gameState.buttonNumber3;
+        btnColour1 = evt.data.gameState.btnColour1;
+        btnColour2 = evt.data.gameState.btnColour2;
+        btnColour3 = evt.data.gameState.btnColour3;
+        failures = evt.data.gameState.failures;
+        timer = evt.data.gameState.timer;
+        gameUpdate();
+      } else if (evt.data.messageType === "ERROR") {
+        alert(evt.data.info);
+      }
+    });
+
+    //Sends resolution to service
+    var settingMsg =  {
+      "messageType": "SETTING",
+      "options": {
+      	"width": 175, //px
+        "height": 800 //px
+        }
+    };
+    window.parent.postMessage(settingMsg, "*");
+
+  });
+
+  </script>
+</head>
+<body>
+
+  <div id="wrapper">
+    <div id="instructions">
+      <button id="close">X</button>
+      <p style="text-align:justify;">
+        <b>Instructions:</b><br>In this game you have to click the button on
+        the 3x3 grid, that has the same colour as the big button. There are
+        additional colours to confuse the player. You must click the button
+        with the right colour, or you lose a life. The game ends when your
+        lives reach 0.
+        <br> The game speeds up every turn, how many points can you get?
+      </p>
+    </div>
+    <button id="mainButton"></button><br>
+    <div id="buttonGrid">
+      <button id="btn0"></button>
+      <button id="btn1"></button>
+      <button id="btn2"></button>
+      <button id="btn3"></button>
+      <button id="btn4"></button>
+      <button id="btn5"></button>
+      <button id="btn6"></button>
+      <button id="btn7"></button>
+      <button id="btn8"></button>
+    </div>
+    <button id="start">Start</button> <button id="stop">Stop</button>
+    <p><span id="score">0</span> Points</p>
+    <p><span id="lives">3</span> Lives</p>
+    <p><span id="result"></span></p>
+    <button id="save">Save</button>
+    <button id="load">Load</button>
+    <button id="submit_score">Submit Score</button>
+  </div>
+
+</body>
+</html>
