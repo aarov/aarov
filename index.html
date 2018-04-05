@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Press the right button</title>
+  <title>Speed test</title>
   <meta charset="utf-8"/>
   <style>
 
@@ -33,12 +33,13 @@
     border-style: solid;
     border-color: black;
     display: block;
+
   }
 
   div#wrapper {
     text-align: center;
     width: 175px;
-    height: 800px;
+    height: 1000px;
     margin: 0 auto;
   }
 
@@ -336,7 +337,7 @@
       "messageType": "SETTING",
       "options": {
       	"width": 175, //px
-        "height": 800 //px
+        "height": 1000 //px
         }
     };
     window.parent.postMessage(settingMsg, "*");
@@ -351,11 +352,15 @@
     <div id="instructions">
       <button id="close">X</button>
       <p style="text-align:justify;">
-        <b>Instructions:</b><br>In this game you have to click the button on
-        the 3x3 grid, that has the same colour as the big button. There are
-        additional colours to confuse the player. You must click the button
-        with the right colour, or you lose a life. The game ends when your
-        lives reach 0.
+        <b>Instructions:</b><br>
+        You have to press a button on the 3x3 grid that has the same colour as
+        the big button. You have to press the right colour in time, while the
+        game keeps going on faster and faster.<br>
+        You can fail three times before the game ends. Each time the colours
+        change, you only get to press a button once, and you lose a life if
+        you press the incorrect one.
+        There are other coloured squares to confuse the player, you must only
+        click the correct one. The point of the game is to get lots of points.
         <br> The game speeds up every turn, how many points can you get?
       </p>
     </div>
